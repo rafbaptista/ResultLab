@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Result.Core\Result.Core.csproj" />
+    <ProjectReference Include="..\ResultLab\ResultLab.csproj" />
   </ItemGroup>
 
 </Project>
