@@ -1,53 +1,40 @@
-﻿using Result.Core.Models;
+﻿using ResultLab.Core.Models;
 using System;
 
-namespace Result.Core.Extensions
+namespace ResultLab.Core.Extensions
 {
     public static class SuccessExtensions 
     {
         /// <summary>
-        /// Executa uma função que não retorna valor e não encerra a execução do fluxo
+        /// Executa uma ação caso <paramref name="result"/> seja sucesso
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="result"></param>
-        /// <param name="action"></param>
+        /// <param name="result">Resultado de uma operação, que pode ser sucesso ou falha</param>
+        /// <param name="action">A ação a ser executada em caso de sucesso</param>
         /// <returns></returns>
         public static Result<T> OnSuccess<T>(this Result<T> result, Action<T> action)
         {
-            if (!result.IsSuccess) return result;
+            if (result.IsSuccess)
+                action.Invoke(result.Data);
 
-            action.Invoke(result.Data);
             return result;
         }
 
         /// <summary>
-        /// Executa uma função que deve retornar um valor de tipo <typeparamref name="T"/> e encerra a execução do fluxo
+        /// Executa uma ação caso <paramref name="result"/> seja sucesso, outra ação caso <paramref name="result"/> seja falha. Também pode ser utilizada junto com um return para encerrar a função pai e o escopo atual
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="result"></param>
-        /// <param name="action"></param>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="result">Resultado de uma operação, que pode ser sucesso ou falha</param>
+        /// <param name="success">Ação que será realizada e retornada caso <paramref name="result"/> seja sucesso</param>
+        /// <param name="failure">Ação que será realizada e retornada caso <paramref name="result"/> seja falha</param>
         /// <returns></returns>
-        public static Result<T> OnSuccessReturn<T>(this Result<T> result, Func<T, Result<T>> action)
-        {
-            if (!result.IsSuccess) return result;
-
-            return action.Invoke(result.Data);
-        }
-
-        /// Executa uma função que deve retornar um valor de tipo especificado e encerra a execução do fluxo
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="result"></param>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public static TReturn OnSuccessReturn<TResult,TReturn>(this Result<TResult> result, Func<Result<TResult>, TReturn> action) 
+        public static TReturn OnSuccess<T, TReturn>(this Result<T> result, Func<T, TReturn> success, Func<string,TReturn> failure)
         {
             if (result.IsSuccess)
-                return action.Invoke(result);
+                return success.Invoke(result.Data);
             else
-                return default(TReturn);
+                return failure.Invoke(result.Message);
         }
-
-
     }
 }

@@ -1,9 +1,9 @@
-﻿using Result.Core.Models;
-using Result.WebApi.Domain;
-using Result.WebApi.Interfaces;
+﻿using ResultLab.Core.Models;
+using ResultLab.WebApi.Domain;
+using ResultLab.WebApi.Interfaces;
 using System;
 
-namespace Result.WebApi.Repositories
+namespace ResultLab.WebApi.Repositories
 {
     public class PersonRepository : IPersonRepository
     {

@@ -1,40 +1,46 @@
-﻿using Result.Core.Models;
+﻿using ResultLab.Core.Models;
 using System;
 
-namespace Result.Core.Extensions
+namespace ResultLab.Core.Extensions
 {
     public static class ConditionExtensions
     {
+        /// <summary>
+        /// Executa uma ação se a condição contida em <paramref name="predicate"/> for satisfeita
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="result">Resultado de uma operação, que pode ser sucesso ou falha</param>
+        /// <param name="predicate">A condição que deverá ser satisfeita</param>
+        /// <param name="action">A ação a ser executada caso a condição seja satisfeita</param>
+        /// <returns></returns>
         public static Result<T> OnCondition<T>(this Result<T> result, Func<T, bool> predicate, Action<T> action)
         {
             bool predicateResult = predicate.Invoke(result.Data);
 
-            if (!predicateResult)
-                return result;
+            if (predicateResult)
+                action.Invoke(result.Data);
 
-            action.Invoke(result.Data);
             return result;
         }
 
-        public static Result<T> OnConditionReturn<T>(this Result<T> result, Func<T, bool> predicate, Func<T, Result<T>> action)
+        /// <summary>
+        /// Executa uma ação se a condição for satisfeita e outra se a condição não for satisfeta. Também pode ser utilizada junto com um return para encerrar a função pai e o escopo atual
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="result">Resultado de uma operação, que pode ser sucesso ou falha</param>
+        /// <param name="predicate">A condição que deverá ser satisfeita</param>
+        /// <param name="success">Ação que será realizada e retornada caso a condição seja satisfeita</param>
+        /// <param name="failure">Ação que será realizada e retornada caso a condição não seja satisfeita</param>
+        /// <returns></returns>
+        public static TReturn OnCondition<T, TReturn>(this Result<T> result, Func<T, bool> predicate, Func<T, TReturn> success, Func<T, TReturn> failure)
         {
             bool predicateResult = predicate.Invoke(result.Data);
 
             if (!predicateResult)
-                return result;
+                return failure.Invoke(result.Data);
 
-            return action.Invoke(result.Data);
+            return success.Invoke(result.Data);
         }
-
-        public static TReturn OnConditionReturn<TResult, TReturn>(this Result<TResult> result, Func<TResult, bool> predicate, Func<Result<TResult>, TReturn> action)
-        {
-            bool predicateResult = predicate.Invoke(result.Data);
-
-            if (predicateResult)
-                return action.Invoke(result);
-            else
-                return default(TReturn);
-        }
-
     }
 }

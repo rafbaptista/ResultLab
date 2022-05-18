@@ -1,4 +1,4 @@
-﻿namespace Result.WebApi.Domain
+﻿namespace ResultLab.WebApi.Domain
 {
     public class Car
     {

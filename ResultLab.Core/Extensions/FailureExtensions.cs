@@ -1,51 +1,40 @@
-﻿using Result.Core.Models;
+﻿using ResultLab.Core.Models;
 using System;
 
-namespace Result.Core.Extensions
+namespace ResultLab.Core.Extensions
 {
     public static class FailureExtensions
     {
         /// <summary>
-        /// Executa uma função que não retorna valor e não encerra a execução do fluxo
+        /// Executa uma ação caso o resultado de <paramref name="result"/> seja um erro/falha
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="result"></param>
-        /// <param name="action"></param>
+        /// <param name="result">Resultado de uma operação, que pode ser sucesso ou falha</param>
+        /// <param name="action">A ação a ser executada em caso de falha</param>
         /// <returns></returns>
-        public static Result<T> OnFailure<T>(this Result<T> result, Action<Exception> action)
+        public static Result<T> OnFailure<T>(this Result<T> result, Action<string> action)
         {
-            if (!result.IsFailure) return result;
+            if (result.IsFailure)
+                action.Invoke(result.Message);
 
-            action.Invoke(result.Exception);
             return result;
         }
 
         /// <summary>
-        ///  Executa uma função que deve retornar um valor de tipo <typeparamref name="T"/> e encerra a execução do fluxo
+        /// Executa uma ação caso <paramref name="result"/> seja falha, outra ação caso <paramref name="result"/> seja sucesso. Também pode ser utilizada junto com um return para encerrar a função pai e o escopo atual
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="result"></param>
-        /// <param name="action"></param>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="result">Resultado de uma operação, que pode ser sucesso ou falha</param>
+        /// <param name="failure">Ação que será realizada e retornada caso <paramref name="result"/> seja falha</param>
+        /// <param name="success">Ação que será realizada e retornada caso <paramref name="result"/> seja sucesso</param>
         /// <returns></returns>
-        public static Result<T> OnFailureReturn<T>(this Result<T> result, Func<Exception, Result<T>> action)
-        {
-            if (!result.IsFailure) return result;
-
-            return action.Invoke(result.Exception);
-        }
-
-        /// Executa uma função que deve retornar um valor de tipo especificado e encerra a execução do fluxo
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="result"></param>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public static TReturn OnFailureReturn<TResult, TReturn>(this Result<TResult> result, Func<Result<TResult>, TReturn> action)
+        public static TReturn OnFailure<T, TReturn>(this Result<T> result, Func<string, TReturn> failure, Func<T, TReturn> success)
         {
             if (result.IsFailure)
-                return action.Invoke(result);
+                return failure.Invoke(result.Message);
             else
-                return default(TReturn);
+                return success.Invoke(result.Data);
         }
 
     }

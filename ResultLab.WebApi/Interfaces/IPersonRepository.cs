@@ -1,6 +1,6 @@
-﻿using Result.WebApi.Domain;
+﻿using ResultLab.WebApi.Domain;
 
-namespace Result.WebApi.Interfaces
+namespace ResultLab.WebApi.Interfaces
 {
     public interface IPersonRepository
     {
